@@ -103,8 +103,37 @@ Terminal = (canvas) ->
 
     return
 
-TermBuffer = (term) ->
+TermBuffer = (nrow, ncol) ->
     self = this
+    
+    self.resize = (nrow, ncol) ->
+        self.nrow = nrow
+        self.ncol = ncol
+        self.buf = []
+        for i in [1..nrow]
+            line = []
+            for j in [1..ncol]
+                line.push(' ')
+            self.buf.push(line)
+        return
+
+    self.setChar = (row, col, c) ->
+        self.buf[row][col] = c
+        return
+
+    self.drawAll = (term) ->
+        for i in [0..self.nrow-1]
+            for j in [0..self.ncol-1]
+                term.drawChar(i, j, self.buf[i][j])
+        return
+
+    self.drawChar = (term, row, col, c) ->
+        self.setChar(row, col, c)
+        term.drawChar(row, col, c)
+        return
+
+    # init
+    self.resize(nrow, ncol)
 
     return
 
