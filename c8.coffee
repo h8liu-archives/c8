@@ -48,7 +48,6 @@ Terminal = (canvas) ->
         height = h
         nrow = Math.floor(height / lineHeight)
         ncol = Math.floor(width / charWidth)
-        console.log(nrow, ncol)
         return true
     
     self.inRange = (row, col) ->
@@ -79,6 +78,7 @@ Terminal = (canvas) ->
             return
         p = self.charPos(row, col)
         context.clearRect(p.x, p.y, charWidth, charHeight)
+        context.fillStyle = '#ddd'
         context.fillText(c, p.x, p.y + charHeight)
         return
 
@@ -103,6 +103,11 @@ Terminal = (canvas) ->
 
     return
 
+TermBuffer = (term) ->
+    self = this
+
+    return
+
 # a rolling console line buffer
 Console = (term) ->
     self = this
@@ -116,6 +121,18 @@ Console = (term) ->
     self.curShowing = false
 
     nline = (s) -> Math.ceil(s.length / ncol)
+
+    self.printLine = (row, s) ->
+        chars = s.split('')
+        col = 0
+        ncol = self.term.ncol()
+        for c in chars
+            self.term.drawChar(row, col, c)
+            col++
+            if col == ncol
+                row++
+                col = 0
+        return
 
     self.insertChar = (c) ->
         n = self.curLine.length

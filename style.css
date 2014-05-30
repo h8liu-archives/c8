@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    min-width: 300px;
     padding: 0;
     border: 0;
     background: #000;
@@ -39,6 +40,9 @@ div#navi ul li a:hover {
 
 div#navi ul li.right {
     float: right;
+    text-align: right;
+    width: 100px;
+    margin-right: 5px;
 }
 
 div#main {
