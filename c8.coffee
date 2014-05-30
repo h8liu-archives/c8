@@ -3,8 +3,8 @@ c8 = new Object()
 main = ->
     cons = new Console($("canvas#console"))
     # cons.addLine("")
-    # cons.addLine("Hello, world!")
-    # cons.addLine("")
+    cons.addLine("Hello, world!")
+    cons.addLine("")
 
     c8.console = cons
 
@@ -84,6 +84,10 @@ Terminal = (canvas) ->
         y = row * lineHeight + dpr
         return { x:x, y:y }
 
+    self.clear = ->
+        context.clearRect(0, 0, width*dpr, height*dpr)
+        return
+
     self.clearChar = (row, col) ->
         if !self.inRange(row, col)
             return
@@ -105,7 +109,7 @@ Terminal = (canvas) ->
         context.fillText(c, p.x, p.y + charHeight)
         return
 
-    self.drawCursor = (row, col, c) ->
+    self.drawCursor = (row, col) ->
         if !self.inRange(row, col)
             return
         p = self.charPos(row, col)
@@ -113,7 +117,7 @@ Terminal = (canvas) ->
             charWidth, dpr)
         return
     
-    self.clearCursor = (row, col, c) ->
+    self.clearCursor = (row, col) ->
         if !self.inRange(row, col)
             return
         p = self.charPos(row, col)
@@ -134,12 +138,30 @@ Console = (canvas) ->
     self.lines = []
     self.updated = true
     self.lastLineHeight = 0
+    self.curPos = 0
+    self.curRow = 0
+    self.curCol = 0
+    self.curShow = false
+
+    self.drawCursor = ->
+        if ms() < 500
+            if !self.curShow || self.updated
+                self.term.drawCursor(self.curRow, self.curCol)
+                self.curShow = true
+        else
+            if self.curShow || self.updated
+                self.term.clearCursor(self.curRow, self.curCol)
+                self.curShow = false
+        return
 
     self.redraw = ->
         c = self.canvas
         resized = self.term.updateSize(c.width(), c.height())
         if resized || self.updated
             self._redraw()
+        else
+            self.drawCursor()
+
         return
 
     # breaks a line into array of char arrays
@@ -161,17 +183,17 @@ Console = (canvas) ->
 
     # calculate the number of rows required to print this line
     lineNrow = (line) ->
-        if line.length == 0
-            return 1
         ncol = self.term.ncol()
         if ncol == 0
             return 0
-        return Math.ceil(line.length / ncol)
+        return Math.ceil((line.length + 1) / ncol)
 
     self._redraw = ->
         nrow = self.term.nrow()
+        ncol = self.term.ncol()
 
         buf = []
+        lastLineHeight = 0
         
         if self.lines.length > 0
             lastLine = self.lines[0]
@@ -182,29 +204,45 @@ Console = (canvas) ->
                     n = nrow - 1 # at most pad nrow -1 lines
                 for i in [1..n]
                     buf.unshift([])
+                    lastLineHeight++
         
-        for line in self.lines
-            parts = breakLine(line)
+        nline = self.lines.length
+        if nline > 0
+            lastLine = self.lines[0]
+            parts = breakLine(lastLine)
             for p in parts
                 buf.unshift(p)
+                lastLineHeight++
+            
+            for line in self.lines.slice(1, nline)
                 if buf.length >= nrow
                     break
-            if buf.length >= nrow
-                break
+                parts = breakLine(line)
+                for p in parts
+                    buf.unshift(p)
+                    if buf.length >= nrow
+                        break
         
         # just to make sure
-        while buf.length > nrow
-            buf.shift()
+        while buf.length > nrow && buf.length > lastLineHeight
+            buf.shift() # we can discard this because we have not hit last line yet
 
         term = self.term
+        term.clear()
+
         row = 0
         for b in buf
             col = 0
-            term.clearLine(row)
             for c in b
                 term.drawChar(row, col, c)
                 col++
             row++
+
+        curRow = Math.floor(self.curPos / ncol)
+        self.curCol = self.curPos - curRow * ncol
+        self.curRow = buf.length - lastLineHeight + curRow
+        
+        self.drawCursor()
 
         self.updated = false
         return
@@ -228,6 +266,7 @@ Console = (canvas) ->
             self.lines.pop()
         
         self.expandLastLineHeight(line)
+        self.curPos = line.length
         self.updated = true
         return
 
@@ -244,6 +283,7 @@ Console = (canvas) ->
         else
             self.lines[0] = s
             self.expandLastLineHeight(s)
+        self.curPos = s.length
         self.updated = true
         return
     
