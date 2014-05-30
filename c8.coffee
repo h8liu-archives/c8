@@ -1,11 +1,28 @@
 c8 = new Object()
 
 main = ->
-    c8.term = new Terminal($("canvas#console")[0])
-    c8.console = new Console(c8.term)
+    cons = new Console($("canvas#console"))
+    cons.addLine("Hello, world")
+    cons.addLine("c8 working here")
+
+    c8.console = cons
+
     redraw()
     return
 
+redraw = (timestamp) ->
+    winh = $(window).height()
+    c = $("canvas#console")
+    c.height(winh - 50)
+    
+    cons = c8.console
+    cons.addLine('' + new Date())
+    cons.redraw()
+
+    window.requestAnimationFrame(redraw)
+    return
+
+# Grants you the physical layer
 Terminal = (canvas) ->
     self = this
 
@@ -72,7 +89,7 @@ Terminal = (canvas) ->
         p = self.charPos(row, col)
         context.clearRect(p.x, p.y, charWidth, charHeight)
         return
-
+    
     self.drawChar = (row, col, c) ->
         if !self.inRange(row, col)
             return
@@ -103,136 +120,81 @@ Terminal = (canvas) ->
 
     return
 
-TermBuffer = (nrow, ncol) ->
+Console = (canvas) ->
     self = this
-    
-    self.resize = (nrow, ncol) ->
-        self.nrow = nrow
-        self.ncol = ncol
-        self.buf = []
-        for i in [1..nrow]
-            line = []
-            for j in [1..ncol]
-                line.push(' ')
-            self.buf.push(line)
-        return
-
-    self.setChar = (row, col, c) ->
-        self.buf[row][col] = c
-        return
-
-    self.drawAll = (term) ->
-        for i in [0..self.nrow-1]
-            for j in [0..self.ncol-1]
-                term.drawChar(i, j, self.buf[i][j])
-        return
-
-    self.drawChar = (term, row, col, c) ->
-        self.setChar(row, col, c)
-        term.drawChar(row, col, c)
-        return
-
-    # init
-    self.resize(nrow, ncol)
-
-    return
-
-# a rolling console line buffer
-Console = (term) ->
-    self = this
-    self.term = term
+    self.term = new Terminal(canvas[0])
+    self.canvas = canvas # a jquery object
     self.maxLines = 100000
     self.lines = []
-    self.nrow = 0
-    self.ncol = 0
-    self.curLine = ''
-    self.curPos = 0
-    self.curShowing = false
-
-    nline = (s) -> Math.ceil(s.length / ncol)
-
-    self.printLine = (row, s) ->
-        chars = s.split('')
-        col = 0
-        ncol = self.term.ncol()
-        for c in chars
-            self.term.drawChar(row, col, c)
-            col++
-            if col == ncol
-                row++
-                col = 0
-        return
-
-    self.insertChar = (c) ->
-        n = self.curLine.length
-        if self.curPos == n
-            self.curLine = self.curLine + c
-            self.curPos++
-        else
-            before = self.curLine.slice(0, self.curPos)
-            after = self.curLine.slice(self.curPos, n)
-            self.curLine = before + c + after
-            self.curPos++
-        return
-
-    self.moveLeft = ->
-        if self.curPos > 0
-            self.curPos--
-        return
-
-    self.moveRight = ->
-        n = self.curLine.length
-        if self.curPos < n
-            self.curPos++
-        return
-    
-    self.newLine = ->
-        self.lines.push(self.curline)
-        if self.lines.length > self.maxLines
-            self.lines.shift()
-        self.curline = ''
-        return
+    self.updated = true
 
     self.redraw = ->
-        t = ms()
-        if t < 500
-            if !self.curShowing
-                self.curShowing = true
-                term.drawCursor(0, 0)
-        else
-            if self.curShowing
-                self.curShowing = false
-                term.clearCursor(0, 0)
+        c = self.canvas
+        resized = self.term.updateSize(c.width(), c.height())
+        if resized || self.updated
+            self._redraw()
         return
 
-    self.onResize = (nrow, ncol) ->
-        self.nrow = nrow
-        self.ncol = ncol
-        self.redraw()
+    breakLine = (line) ->
+        chars = line.split('')
+        n = chars.length
+        ncol = self.term.ncol()
+        i = 0
+        ret = []
+        while i < n
+            ret.unshift(chars.slice(i, i+ncol))
+            i += ncol
+        return ret
+
+    self._redraw = ->
+        buf = []
+        nrow = self.term.nrow()
+        for line in self.lines
+            parts = breakLine(line)
+            for p in parts
+                buf.unshift(p)
+            if buf.length >= nrow
+                break
+        while buf.length > nrow
+            buf.shift()
+
+        term = self.term
+        row = 0
+        for b in buf
+            col = 0
+            for c in b
+                term.drawChar(row, col, c)
+                col++
+            row++
+
+        self.updated = false
+        return
+            
+    self.addLine = (line) ->
+        self.lines.unshift(line)
+        if self.lines.length > self.maxLines
+            self.lines.pop()
+        self.updated = true
         return
 
+    self.getLastLine = ->
+        nline = self.lines.length
+        if nline == 0
+            return ''
+        return self.lines[0]
+
+    self.setLastLine = (s) ->
+        nline = self.lines.length
+        if nline == 0
+            self.addLine(s)
+        self.lines[0] = s
+        return
+    
     return
 
 ms = ->
     d = new Date()
     return d.getMilliseconds()
 
-redraw = (timestamp) ->
-    winh = $(window).height()
-    c = $("canvas#console")
-    c.height(winh - 50)
-
-    term = c8.term
-    cons = c8.console
-
-    if term.updateSize(c.width(), c.height())
-        nrow = term.nrow()
-        ncol = term.ncol()
-        cons.onResize(nrow, ncol)
-        term.sayHello()
-    cons.redraw()
-
-    window.requestAnimationFrame(redraw)
-    return
 
 $(document).ready(main)
