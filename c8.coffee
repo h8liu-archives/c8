@@ -142,6 +142,7 @@ Console = (canvas) ->
             self._redraw()
         return
 
+    # breaks a line into array of char arrays
     breakLine = (line) ->
         chars = line.split('')
         n = chars.length
@@ -158,6 +159,7 @@ Console = (canvas) ->
             i += ncol
         return ret
 
+    # calculate the number of rows required to print this line
     lineNrow = (line) ->
         if line.length == 0
             return 1
@@ -167,24 +169,30 @@ Console = (canvas) ->
         return Math.ceil(line.length / ncol)
 
     self._redraw = ->
+        nrow = self.term.nrow()
+
         buf = []
         
-        nline = self.lines.length
-        if nline > 0
+        if self.lines.length > 0
             lastLine = self.lines[0]
             lastNrow = lineNrow(lastLine)
             if self.lastLineHeight > lastNrow
                 n = self.lastLineHeight - lastNrow
+                if n >= nrow
+                    n = nrow - 1 # at most pad nrow -1 lines
                 for i in [1..n]
                     buf.unshift([])
         
-        nrow = self.term.nrow()
         for line in self.lines
             parts = breakLine(line)
             for p in parts
                 buf.unshift(p)
+                if buf.length >= nrow
+                    break
             if buf.length >= nrow
                 break
+        
+        # just to make sure
         while buf.length > nrow
             buf.shift()
 
@@ -205,7 +213,6 @@ Console = (canvas) ->
         nrow = lineNrow(line)
         if self.lastLineHeight < nrow
             self.lastLineHeight = nrow
-        self.updated = true
 
     self.addLine = (line) ->
         if self.lines.length > 0
@@ -237,7 +244,6 @@ Console = (canvas) ->
         else
             self.lines[0] = s
             self.expandLastLineHeight(s)
-
         self.updated = true
         return
     
