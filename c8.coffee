@@ -41,7 +41,7 @@ Terminal = (canvas) ->
         canvas.width = w * dpr
         canvas.height = h * dpr
         context.font = '' + fontSize + 'px Consolas'
-        context.fillStyle = '#eee'
+        context.fillStyle = '#ddd'
         context.textBaseline = 'bottom'
 
         width = w
