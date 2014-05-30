@@ -2,8 +2,9 @@ c8 = new Object()
 
 main = ->
     cons = new Console($("canvas#console"))
-    cons.addLine("Hello, world!")
-    cons.addLine("")
+    # cons.addLine("")
+    # cons.addLine("Hello, world!")
+    # cons.addLine("")
 
     c8.console = cons
 
@@ -83,11 +84,16 @@ Terminal = (canvas) ->
         y = row * lineHeight + dpr
         return { x:x, y:y }
 
-    self.clearChar = (row, col, c) ->
+    self.clearChar = (row, col) ->
         if !self.inRange(row, col)
             return
         p = self.charPos(row, col)
         context.clearRect(p.x, p.y, charWidth, charHeight)
+        return
+
+    self.clearLine = (row) ->
+        for i in [0..ncol-1]
+            self.clearChar(row, i)
         return
     
     self.drawChar = (row, col, c) ->
@@ -127,6 +133,7 @@ Console = (canvas) ->
     self.maxLines = 100000
     self.lines = []
     self.updated = true
+    self.lastLineHeight = 0
 
     self.redraw = ->
         c = self.canvas
@@ -138,6 +145,11 @@ Console = (canvas) ->
     breakLine = (line) ->
         chars = line.split('')
         n = chars.length
+        if n == 0
+            ret = []
+            ret.unshift([])
+            return ret
+
         ncol = self.term.ncol()
         i = 0
         ret = []
@@ -146,8 +158,26 @@ Console = (canvas) ->
             i += ncol
         return ret
 
+    lineNrow = (line) ->
+        if line.length == 0
+            return 1
+        ncol = self.term.ncol()
+        if ncol == 0
+            return 0
+        return Math.ceil(line.length / ncol)
+
     self._redraw = ->
         buf = []
+        
+        nline = self.lines.length
+        if nline > 0
+            lastLine = self.lines[0]
+            lastNrow = lineNrow(lastLine)
+            if self.lastLineHeight > lastNrow
+                n = self.lastLineHeight - lastNrow
+                for i in [1..n]
+                    buf.unshift([])
+        
         nrow = self.term.nrow()
         for line in self.lines
             parts = breakLine(line)
@@ -162,6 +192,7 @@ Console = (canvas) ->
         row = 0
         for b in buf
             col = 0
+            term.clearLine(row)
             for c in b
                 term.drawChar(row, col, c)
                 col++
@@ -170,10 +201,26 @@ Console = (canvas) ->
         self.updated = false
         return
             
+    self.expandLastLineHeight = (line) ->
+        nrow = lineNrow(line)
+        if self.lastLineHeight < nrow
+            self.lastLineHeight = nrow
+        self.updated = true
+
     self.addLine = (line) ->
+        if self.lines.length > 0
+            lastLine = self.lines[0]
+            lastLineHeight = lineNrow(lastLine)
+            if self.lastLineHeight > lastLineHeight
+                self.lastLineHeight -= lastLineHeight
+            else
+                self.lastLineHeight = 0
+
         self.lines.unshift(line)
         if self.lines.length > self.maxLines
             self.lines.pop()
+        
+        self.expandLastLineHeight(line)
         self.updated = true
         return
 
@@ -187,7 +234,10 @@ Console = (canvas) ->
         nline = self.lines.length
         if nline == 0
             self.addLine(s)
-        self.lines[0] = s
+        else
+            self.lines[0] = s
+            self.expandLastLineHeight(s)
+
         self.updated = true
         return
     
