@@ -1,9 +1,9 @@
-ani = (timestamp) ->
+redraw = (timestamp) ->
     winh = $(window).height()
     console.log(winh)
     $("canvas#console").height(winh - 50)
-    window.requestAnimationFrame(ani)
+    window.requestAnimationFrame(redraw)
     return
 
-ani()
-window.requestAnimationFrame(ani)
+redraw()
+window.requestAnimationFrame(redraw)
