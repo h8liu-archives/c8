@@ -2,8 +2,8 @@ c8 = new Object()
 
 main = ->
     cons = new Console($("canvas#console"))
-    cons.addLine("Hello, world")
-    cons.addLine("c8 working here")
+    cons.addLine("Hello, world!")
+    cons.addLine("")
 
     c8.console = cons
 
@@ -13,10 +13,10 @@ main = ->
 redraw = (timestamp) ->
     winh = $(window).height()
     c = $("canvas#console")
-    c.height(winh - 50)
+    c.height(winh - 40)
     
     cons = c8.console
-    cons.addLine('' + new Date())
+    cons.setLastLine('The time now is: ' + new Date())
     cons.redraw()
 
     window.requestAnimationFrame(redraw)
@@ -63,8 +63,8 @@ Terminal = (canvas) ->
 
         width = w
         height = h
-        nrow = Math.floor(height / lineHeight)
-        ncol = Math.floor(width / charWidth)
+        nrow = Math.floor(height * dpr / lineHeight)
+        ncol = Math.floor(width * dpr / charWidth)
         return true
     
     self.inRange = (row, col) ->
@@ -188,6 +188,7 @@ Console = (canvas) ->
         if nline == 0
             self.addLine(s)
         self.lines[0] = s
+        self.updated = true
         return
     
     return
