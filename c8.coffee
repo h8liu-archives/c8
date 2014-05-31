@@ -1,27 +1,49 @@
 c8 = new Object()
 
 main = ->
-    cons = new Console($("canvas#console"))
-    # cons.addLine("")
-    cons.addLine("Hello, world!")
-    cons.addLine("")
-
-    c8.console = cons
-
+    c8.cons = new CmdLine($("canvas#console"))
     redraw()
+    $(document).keypress( (ev) ->
+        if ev.which == 13 || ev.which == 32
+            ev.preventDefault()
+
+        if ev.which >= 32 && ev.which <= 126
+            c8.cons.insertChar(String.fromCharCode(ev.which))
+
+        return
+    )
+    $(document).keydown( (ev) ->
+        console.log(ev.which)
+
+        if ev.which in [8, 46, 13, 37, 39]
+            ev.preventDefault()
+        
+        if ev.which == 8 # backspace
+            c8.cons.backChar()
+        if ev.which == 46 # delete
+            c8.cons.delChar()
+        if ev.which == 13 # enter
+            c8.cons.enter()
+        if ev.which == 37 # left
+            c8.cons.moveCurLeft()
+        if ev.which == 39 # right
+            c8.cons.moveCurRight()
+
+    )
+    return
+
+fitCanvas = ->
+    c = $("canvas#console")
+    c.height($(window).height() - 40)
     return
 
 redraw = (timestamp) ->
-    winh = $(window).height()
-    c = $("canvas#console")
-    c.height(winh - 40)
-    
-    cons = c8.console
-    cons.setLastLine('The time now is: ' + new Date())
-    cons.redraw()
-
+    fitCanvas()
+    c8.cons.redraw()
     window.requestAnimationFrame(redraw)
     return
+
+ms = -> (new Date()).getMilliseconds()
 
 # Grants you the physical layer
 Terminal = (canvas) ->
@@ -179,6 +201,8 @@ Console = (canvas) ->
         while i < n
             ret.unshift(chars.slice(i, i+ncol))
             i += ncol
+        if n % ncol == 0
+            ret.unshift([])
         return ret
 
     # calculate the number of rows required to print this line
@@ -283,15 +307,74 @@ Console = (canvas) ->
         else
             self.lines[0] = s
             self.expandLastLineHeight(s)
-        self.curPos = s.length
+        self.updated = true
+        return
+
+    self.setCursor = (pos) ->
+        self.curPos = pos
         self.updated = true
         return
     
     return
 
-ms = ->
-    d = new Date()
-    return d.getMilliseconds()
+CmdLine = (canvas) ->
+    self = this
+    self.cons = new Console(canvas)
+    self.prompt = '$ '
+    self.cons.addLine(self.prompt)
+    self.line = ''
+    self.curPos = 0
 
+    self.redraw = ->
+        self.cons.setLastLine(self.prompt + self.line)
+        self.cons.setCursor(self.prompt.length + self.curPos)
+        self.cons.redraw()
+        return
+    
+    self.insertChar = (c) ->
+        line = self.line
+        before = line.substr(0, self.curPos)
+        after = line.substr(self.curPos, line.length)
+        self.line = before + c + after
+        self.curPos++
+        return
+
+    self.backChar = (c) ->
+        if self.curPos > 0
+            line = self.line
+            before = line.substr(0, self.curPos-1)
+            after = line.substr(self.curPos, line.length)
+            self.line = before + after
+            self.curPos--
+        return
+    
+    self.delChar = (c) ->
+        line = self.line
+        n = line.length
+        if self.curPos != n
+            before = line.substr(0, self.curPos)
+            after = line.substr(self.curPos+1, line.length)
+            self.line = before + after
+        return
+
+    self.moveCurLeft = ->
+        if self.curPos > 0
+            self.curPos--
+        return
+    
+    self.moveCurRight = ->
+        if self.curPos < self.line.length
+            self.curPos++
+        return
+    
+    self.enter = ->
+        if self.line.length > 0
+            self.cons.addLine('You typed: ' + self.line)
+        self.cons.addLine(self.prompt)
+        self.curPos = 0
+        self.line = ''
+        return
+
+    return
 
 $(document).ready(main)
