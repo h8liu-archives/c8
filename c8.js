@@ -414,11 +414,14 @@
     };
     self.enter = function() {
       if (self.line.length > 0) {
-        self.cons.addLine('You typed: ' + self.line);
+        self.invoke(self.line);
       }
       self.cons.addLine(self.prompt);
       self.curPos = 0;
       self.line = '';
+    };
+    self.invoke = function(line) {
+      return self.cons.addLine('You typed: ' + line);
     };
   };
 

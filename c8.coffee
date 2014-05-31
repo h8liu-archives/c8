@@ -375,11 +375,15 @@ CmdLine = (canvas) ->
     
     self.enter = ->
         if self.line.length > 0
-            self.cons.addLine('You typed: ' + self.line)
+            self.invoke(self.line)
         self.cons.addLine(self.prompt)
         self.curPos = 0
         self.line = ''
         return
+
+    self.invoke = (line) ->
+        # TODO
+        self.cons.addLine('You typed: ' + line)
 
     return
 
