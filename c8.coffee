@@ -325,6 +325,7 @@ CmdLine = (canvas) ->
     self.cons.addLine(self.prompt)
     self.line = ''
     self.curPos = 0
+    self.launcher = null
 
     self.redraw = ->
         self.cons.setLastLine(self.prompt + self.line)
@@ -375,15 +376,17 @@ CmdLine = (canvas) ->
     
     self.enter = ->
         if self.line.length > 0
-            self.invoke(self.line)
+            self.launch(self.line)
         self.cons.addLine(self.prompt)
         self.curPos = 0
         self.line = ''
         return
 
-    self.invoke = (line) ->
-        # TODO
-        self.cons.addLine('You typed: ' + line)
+    self.launch = (line) ->
+        if self.launcher == null
+            self.cons.addLine('You typed: ' + line)
+        else
+            self.launcher.launch(line)
 
     return
 

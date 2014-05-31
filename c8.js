@@ -366,6 +366,7 @@
     self.cons.addLine(self.prompt);
     self.line = '';
     self.curPos = 0;
+    self.launcher = null;
     self.redraw = function() {
       self.cons.setLastLine(self.prompt + self.line);
       self.cons.setCursor(self.prompt.length + self.curPos);
@@ -414,14 +415,18 @@
     };
     self.enter = function() {
       if (self.line.length > 0) {
-        self.invoke(self.line);
+        self.launch(self.line);
       }
       self.cons.addLine(self.prompt);
       self.curPos = 0;
       self.line = '';
     };
-    self.invoke = function(line) {
-      return self.cons.addLine('You typed: ' + line);
+    self.launch = function(line) {
+      if (self.launcher === null) {
+        return self.cons.addLine('You typed: ' + line);
+      } else {
+        return self.launcher.launch(line);
+      }
     };
   };
 
