@@ -390,4 +390,24 @@ CmdLine = (canvas) ->
 
     return
 
+FileSys = ->
+    # open is for read
+    self.open = (path) ->
+        return
+
+    # create is for write
+    self.create = (path) ->
+        return
+
+    self.lsdir = (path) ->
+        return
+
+    self.mv = (from, to) ->
+        return
+
+    self.rm = (path) ->
+        return
+
+    return
+
 $(document).ready(main)
