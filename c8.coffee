@@ -2,14 +2,16 @@ c8 = new Object()
 
 main = ->
     c8.cons = new CmdLine($("canvas#console"))
+    bindInput()
     redraw()
+    return
+
+bindInput = ->
     $(document).keypress( (ev) ->
-        if ev.which == 13 || ev.which == 32
+        if ev.which in [13, 32]
             ev.preventDefault()
-
-        if ev.which >= 32 && ev.which <= 126
+        if ev.which >= 32 && ev.which <= 126 # printable characters
             c8.cons.insertChar(String.fromCharCode(ev.which))
-
         return
     )
     $(document).keydown( (ev) ->
@@ -165,9 +167,16 @@ Console = (canvas) ->
     self.curRow = 0
     self.curCol = 0
     self.curShow = false
+    self.lastMoved = (new Date()).getTime()
 
     self.drawCursor = ->
-        if ms() < 500
+        now = (new Date()).getTime()
+        delta = now - self.lastMoved
+        if delta < 0
+            delta = 0
+
+        mod = delta % 1000
+        if mod < 500
             if !self.curShow || self.updated
                 self.term.drawCursor(self.curRow, self.curCol)
                 self.curShow = true
@@ -315,6 +324,10 @@ Console = (canvas) ->
         self.curPos = pos
         self.updated = true
         return
+
+    self.curMoved = ->
+        self.lastMoved = (new Date()).getTime()
+        return
     
     return
 
@@ -339,6 +352,7 @@ CmdLine = (canvas) ->
         after = line.substr(self.curPos, line.length)
         self.line = before + c + after
         self.curPos++
+        self.cons.curMoved()
         return
 
     self.insertTab = ->
@@ -353,6 +367,7 @@ CmdLine = (canvas) ->
             after = line.substr(self.curPos, line.length)
             self.line = before + after
             self.curPos--
+            self.cons.curMoved()
         return
     
     self.delChar = (c) ->
@@ -367,11 +382,13 @@ CmdLine = (canvas) ->
     self.moveCurLeft = ->
         if self.curPos > 0
             self.curPos--
+            self.cons.curMoved()
         return
     
     self.moveCurRight = ->
         if self.curPos < self.line.length
             self.curPos++
+            self.cons.curMoved()
         return
     
     self.enter = ->
@@ -380,6 +397,7 @@ CmdLine = (canvas) ->
         self.cons.addLine(self.prompt)
         self.curPos = 0
         self.line = ''
+        self.cons.curMoved()
         return
 
     self.launch = (line) ->
