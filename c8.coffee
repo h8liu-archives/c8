@@ -13,9 +13,9 @@ main = ->
         return
     )
     $(document).keydown( (ev) ->
-        console.log(ev.which)
+        # console.log(ev.which)
 
-        if ev.which in [8, 46, 13, 37, 39]
+        if ev.which in [8, 46, 13, 37, 39, 9]
             ev.preventDefault()
         
         if ev.which == 8 # backspace
@@ -28,7 +28,8 @@ main = ->
             c8.cons.moveCurLeft()
         if ev.which == 39 # right
             c8.cons.moveCurRight()
-
+        if ev.which == 9 # tab
+            c8.cons.insertTab()
     )
     return
 
@@ -337,6 +338,11 @@ CmdLine = (canvas) ->
         after = line.substr(self.curPos, line.length)
         self.line = before + c + after
         self.curPos++
+        return
+
+    self.insertTab = ->
+        # TODO
+        self.insertChar(' ')
         return
 
     self.backChar = (c) ->
