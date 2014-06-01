@@ -338,7 +338,12 @@ CmdLine = (canvas) ->
     self.cons.addLine(self.prompt)
     self.line = ''
     self.curPos = 0
-    self.launcher = null
+    self.launchFunc = c8go.launch
+    self.out = {
+        println: (s) ->
+            self.cons.addLine(s)
+            return
+    }
 
     self.redraw = ->
         self.cons.setLastLine(self.prompt + self.line)
@@ -401,10 +406,10 @@ CmdLine = (canvas) ->
         return
 
     self.launch = (line) ->
-        if self.launcher == null
-            self.cons.addLine('You typed: ' + line)
+        if self.launchFunc == null
+            self.cons.addLine('launch func missing')
         else
-            self.launcher.launch(line)
+            self.launchFunc(line, self.out)
 
     return
 
