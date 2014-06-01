@@ -12,14 +12,18 @@ func System(args []string, out io.Writer) int {
 		return 0
 	}
 
-	for i, a := range args {
-		fmt.Fprintf(out, "%d: %s\n", i, a)
+	cmd := args[0]
+
+	entry := builtin[cmd]
+	if entry == nil {
+		fmt.Fprintf(out, "command %q not found", cmd)
+		return -1
 	}
 
-	return 0
+	return entry(args, out)
 }
 
-type EntryFunc func(args []string, out io.Writer)
+type EntryFunc func(args []string, out io.Writer) int
 
 var builtin = map[string]EntryFunc{
 	"ls":    ls,
@@ -30,4 +34,5 @@ var builtin = map[string]EntryFunc{
 	"mv":    mv,
 	"cat":   cat,
 	"echo":  echo,
+	"help":  help,
 }
