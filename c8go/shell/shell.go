@@ -5,6 +5,8 @@ import (
 	"io"
 )
 
+var Pwd string = "/"
+
 func System(args []string, out io.Writer) int {
 	if len(args) == 0 {
 		return 0
@@ -15,4 +17,17 @@ func System(args []string, out io.Writer) int {
 	}
 
 	return 0
+}
+
+type EntryFunc func(args []string, out io.Writer)
+
+var builtin = map[string]EntryFunc{
+	"ls":    ls,
+	"mkdir": mkdir,
+	"rm":    rm,
+	"cp":    cp,
+	"cd":    cd,
+	"mv":    mv,
+	"cat":   cat,
+	"echo":  echo,
 }
