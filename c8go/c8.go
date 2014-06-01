@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/gopherjs/gopherjs/js"
 	"fmt"
+	"github.com/gopherjs/gopherjs/js"
 	"strings"
 
-	// "github.com/h8liu/c8/c8go/fs
+	"github.com/h8liu/c8/c8go/shell"
+	"github.com/h8liu/c8/c8go/writer"
 )
 
 func main() {
@@ -20,18 +21,23 @@ func main() {
 	})
 }
 
-func Println(out js.Object, s string) {
-	out.Call("println", s)
+var pout js.Object
+
+func Println(s string) {
+	pout.Call("println", s)
 }
 
-func Printf(out js.Object, f string, args... interface{}) {
+func Printf(f string, args ...interface{}) {
 	s := fmt.Sprintf(f, args...)
-	Println(out, s)
+	Println(s)
 }
+
+func SetOut(out js.Object) { pout = out }
 
 func Launch(s string, out js.Object) {
-	fields := strings.Fields(s)
-	for _, f := range fields {
-		Println(out, f)
-	}
+	// SetOut(out)
+
+	w := writer.New(out)
+	shell.System(strings.Fields(s), w)
+	w.Close()
 }
