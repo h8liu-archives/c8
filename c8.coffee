@@ -47,6 +47,7 @@ redraw = (timestamp) ->
     return
 
 ms = -> (new Date()).getMilliseconds()
+makeFont = (size) -> '' + size + 'px Consolas, Inconsolata'
 
 # Grants you the physical layer
 Terminal = (canvas) ->
@@ -60,7 +61,7 @@ Terminal = (canvas) ->
     charHeight = fontSize
     lineMargin = 3 * dpr
     lineHeight = charHeight + lineMargin
-    context.font = '' + fontSize + 'px Consolas'
+    context.font = makeFont(fontSize)
     charWidth = context.measureText('M').width # calculate char width
 
     width = 0
@@ -83,7 +84,7 @@ Terminal = (canvas) ->
 
         canvas.width = w * dpr
         canvas.height = h * dpr
-        context.font = '' + fontSize + 'px Consolas'
+        context.font = makeFont(fontSize)
         context.fillStyle = '#ddd'
         context.textBaseline = 'bottom'
 
