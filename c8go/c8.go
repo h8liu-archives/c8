@@ -18,5 +18,5 @@ func main() {
 }
 
 func Launch(s string, out js.Object) {
-	out.Call("println", "c8go says you typed: "+s)
+	out.Call("println", "you typed: "+s)
 }
