@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gopherjs/gopherjs/js"
 	"fmt"
+
+	"github.com/h8liu/c8/fs"
 )
 
 func main() {
@@ -19,4 +21,5 @@ func main() {
 
 func Launch(s string, out js.Object) {
 	out.Call("println", "you typed: "+s)
+	out.Call("println", fs.Hello())
 }
