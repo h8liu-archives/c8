@@ -3,8 +3,9 @@ package main
 import (
 	"github.com/gopherjs/gopherjs/js"
 	"fmt"
+	"strings"
 
-	"github.com/h8liu/c8/fs"
+	// "github.com/h8liu/c8/c8go/fs
 )
 
 func main() {
@@ -19,7 +20,18 @@ func main() {
 	})
 }
 
+func Println(out js.Object, s string) {
+	out.Call("println", s)
+}
+
+func Printf(out js.Object, f string, args... interface{}) {
+	s := fmt.Sprintf(f, args...)
+	Println(out, s)
+}
+
 func Launch(s string, out js.Object) {
-	out.Call("println", "you typed: "+s)
-	out.Call("println", fs.Hello())
+	fields := strings.Fields(s)
+	for _, f := range fields {
+		Println(out, f)
+	}
 }
