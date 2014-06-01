@@ -3,6 +3,8 @@
 js: 
 	go build
 	gopherjs build
+	cp c8go.js ../www/.
+	cp c8go.js.map ../www/.
 
 all:
 	go install ./...
