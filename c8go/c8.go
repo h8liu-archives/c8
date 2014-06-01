@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gopherjs/gopherjs/js"
+	"fmt"
 )
 
 func main() {
