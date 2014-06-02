@@ -54,7 +54,8 @@ redraw = (timestamp) ->
     return
 
 ms = -> (new Date()).getMilliseconds()
-makeFont = (size) -> '' + size + 'px Consolas, Inconsolata'
+monos = 'Consolas, Inconsolata, Monaco, "Courier New", Courier, monospace'
+makeFont = (size) -> '' + size + 'px ' + monos
 
 # Grants you the physical layer
 Terminal = (canvas) ->
