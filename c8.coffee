@@ -35,9 +35,16 @@ bindInput = ->
     )
     return
 
+lastWinh = -1
 fitCanvas = ->
     c = $("canvas#console")
-    c.height($(window).height() - 40)
+    winh = $(window).height()
+    if winh != lastWinh
+        h = winh - 40
+        if h < 0
+            h = 1
+        c.height(h)
+        lastWinh = winh
     return
 
 redraw = (timestamp) ->
@@ -322,8 +329,9 @@ Console = (canvas) ->
         return
 
     self.setCursor = (pos) ->
-        self.curPos = pos
-        self.updated = true
+        if self.curPos != pos
+            self.curPos = pos
+            self.updated = true
         return
 
     self.curMoved = ->
@@ -345,10 +353,13 @@ CmdLine = (canvas) ->
             self.cons.addLine(s)
             return
     }
+    self.updated = true
 
     self.redraw = ->
-        self.cons.setLastLine(self.prompt + self.line)
-        self.cons.setCursor(self.prompt.length + self.curPos)
+        if self.updated
+            self.cons.setLastLine(self.prompt + self.line)
+            self.cons.setCursor(self.prompt.length + self.curPos)
+            self.updated = false
         self.cons.redraw()
         return
     
@@ -359,11 +370,13 @@ CmdLine = (canvas) ->
         self.line = before + c + after
         self.curPos++
         self.cons.curMoved()
+        self.updated = true
         return
 
     self.insertTab = ->
         # TODO
         self.insertChar(' ')
+        self.updated = true
         return
 
     self.backChar = (c) ->
@@ -374,6 +387,7 @@ CmdLine = (canvas) ->
             self.line = before + after
             self.curPos--
             self.cons.curMoved()
+        self.updated = true
         return
     
     self.delChar = (c) ->
@@ -383,18 +397,21 @@ CmdLine = (canvas) ->
             before = line.substr(0, self.curPos)
             after = line.substr(self.curPos+1, line.length)
             self.line = before + after
+        self.updated = true
         return
 
     self.moveCurLeft = ->
         if self.curPos > 0
             self.curPos--
             self.cons.curMoved()
+        self.updated = true
         return
     
     self.moveCurRight = ->
         if self.curPos < self.line.length
             self.curPos++
             self.cons.curMoved()
+        self.updated = true
         return
     
     self.enter = ->
@@ -404,6 +421,7 @@ CmdLine = (canvas) ->
         self.curPos = 0
         self.line = ''
         self.cons.curMoved()
+        self.updated = true
         return
 
     self.launch = (line) ->
@@ -412,6 +430,7 @@ CmdLine = (canvas) ->
         else
             self.launchFunc(line, self.out)
         self.prompt = c8go.pwd() + '$ '
+        self.updated = true
         return
 
     return
