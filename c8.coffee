@@ -335,7 +335,7 @@ Console = (canvas) ->
 CmdLine = (canvas) ->
     self = this
     self.cons = new Console(canvas)
-    self.prompt = '$ '
+    self.prompt = c8go.pwd() + '$ '
     self.cons.addLine(self.prompt)
     self.line = ''
     self.curPos = 0
@@ -411,6 +411,8 @@ CmdLine = (canvas) ->
             self.cons.addLine('launch func missing')
         else
             self.launchFunc(line, self.out)
+        self.prompt = c8go.pwd() + '$ '
+        return
 
     return
 

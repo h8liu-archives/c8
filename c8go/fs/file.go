@@ -6,13 +6,13 @@ import (
 
 type File struct {
 	perm uint32
-	*byte.Buffer
+	*bytes.Buffer
 }
 
 func NewFile(perm uint32) *File {
 	ret := new(File)
 	ret.perm = perm
-	ret.Buffer = new(byte.Buffer)
+	ret.Buffer = new(bytes.Buffer)
 	return ret
 }
 

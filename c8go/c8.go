@@ -18,6 +18,7 @@ func main() {
 
 	js.Global.Set("c8go", map[string]interface{}{
 		"launch": Launch,
+		"pwd": Pwd,
 	})
 }
 
@@ -34,10 +35,15 @@ func Printf(f string, args ...interface{}) {
 
 func SetOut(out js.Object) { pout = out }
 
-func Launch(s string, out js.Object) {
+func Launch(s string, out js.Object) int {
 	// SetOut(out)
 
 	w := writer.New(out)
-	shell.System(strings.Fields(s), w)
+	ret := shell.System(strings.Fields(s), w)
 	w.Close()
+	return ret
+}
+
+func Pwd() string {
+	return shell.Pwd
 }
