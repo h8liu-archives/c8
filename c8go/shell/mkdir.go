@@ -22,8 +22,13 @@ func mkdir(args []string, out io.Writer) int {
 
 	name := args[1]
 
+	if !fs.IsValid(name) {
+		fmt.Fprintf(out, "error: invalid directory name\n", name)
+		return -1
+	}
+
 	if dir.Get(args[1]) != nil {
-		fmt.Fprintf(out, "%q already exists\n", name)
+		fmt.Fprintf(out, "error: %q already exists\n", name)
 		return -1
 	}
 

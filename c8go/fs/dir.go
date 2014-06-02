@@ -15,6 +15,9 @@ func NewDir(perm uint32) *Dir {
 func (d *Dir) Perm() uint32 { return d.perm }
 
 func (d *Dir) Set(name string, node Node) {
+	if !IsValid(name) {
+		return
+	}
 	d.subs[name] = node
 }
 

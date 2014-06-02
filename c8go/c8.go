@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/gopherjs/gopherjs/js"
 	"strings"
+
+	"github.com/gopherjs/gopherjs/js"
 
 	"github.com/h8liu/c8/c8go/shell"
 	"github.com/h8liu/c8/c8go/writer"
