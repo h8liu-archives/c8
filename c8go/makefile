@@ -2,7 +2,7 @@
 
 js: 
 	go build
-	gopherjs build
+	gopherjs build -m
 	cp c8go.js ../www/.
 	cp c8go.js.map ../www/.
 
