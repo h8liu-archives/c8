@@ -3,9 +3,12 @@ package shell
 import (
 	"fmt"
 	"io"
+
+	"github.com/h8liu/c8/c8go/fs"
 )
 
 var Pwd string = "/"
+var fileSys = fs.NewFileSys()
 
 func System(args []string, out io.Writer) int {
 	if len(args) == 0 {

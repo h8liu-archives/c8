@@ -18,7 +18,7 @@ func main() {
 
 	js.Global.Set("c8go", map[string]interface{}{
 		"launch": Launch,
-		"pwd": Pwd,
+		"pwd":    Pwd,
 	})
 }
 
