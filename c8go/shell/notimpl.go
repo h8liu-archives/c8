@@ -6,13 +6,12 @@ import (
 )
 
 var (
-	mkdir = notImpl
-	rm    = notImpl
-	cp    = notImpl
-	mv    = notImpl
-	cat   = notImpl
-	echo  = notImpl
-	help  = notImpl
+	rm   = notImpl
+	cp   = notImpl
+	mv   = notImpl
+	cat  = notImpl
+	echo = notImpl
+	help = notImpl
 )
 
 func notImpl(args []string, out io.Writer) int {
