@@ -5,14 +5,14 @@ import (
 )
 
 type File struct {
-	perm    uint32
-	content *byte.Buffer
+	perm uint32
+	*byte.Buffer
 }
 
 func NewFile(perm uint32) *File {
 	ret := new(File)
 	ret.perm = perm
-	ret.content = new(byte.Buffer)
+	ret.Buffer = new(byte.Buffer)
 	return ret
 }
 
