@@ -27,7 +27,9 @@ func ls(args []string, out io.Writer) int {
 		}
 		fmt.Fprint(out, p)
 	}
-	fmt.Fprintln(out)
+	if len(lst) > 0 {
+		fmt.Fprintln(out)
+	}
 
 	return 0
 }
