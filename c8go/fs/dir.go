@@ -18,6 +18,12 @@ func (d *Dir) Set(name string, node Node) {
 	if !IsValid(name) {
 		return
 	}
+
+	if node == nil {
+		delete(d.subs, name)
+		return
+	}
+
 	d.subs[name] = node
 }
 
