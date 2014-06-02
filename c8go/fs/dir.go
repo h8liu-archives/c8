@@ -44,3 +44,7 @@ func (d *Dir) List() []string {
 
 	return ret
 }
+
+func (d *Dir) IsEmpty() bool {
+	return len(d.subs) == 0
+}

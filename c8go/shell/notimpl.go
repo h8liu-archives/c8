@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	rm   = notImpl
 	cp   = notImpl
 	mv   = notImpl
 	cat  = notImpl
