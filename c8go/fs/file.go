@@ -2,18 +2,30 @@ package fs
 
 import (
 	"bytes"
+	"io"
 )
 
 type File struct {
-	perm uint32
-	*bytes.Buffer
+	perm  uint32
+	bytes []byte
 }
 
 func NewFile(perm uint32) *File {
 	ret := new(File)
 	ret.perm = perm
-	ret.Buffer = new(bytes.Buffer)
+	ret.bytes = make([]byte, 0)
 	return ret
 }
 
 func (f *File) Perm() uint32 { return f.perm }
+
+func (f *File) Clone() *File {
+	ret := new(File)
+	ret.perm = f.perm
+
+	writer := new(bytes.Buffer)
+	io.Copy(writer, bytes.NewBuffer(f.bytes))
+	ret.bytes = writer.Bytes()
+
+	return ret
+}
