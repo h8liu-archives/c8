@@ -11,31 +11,36 @@ import (
 
 func cp(args []string, out io.Writer) int {
 	if len(args) != 3 {
-		fmt.Fprintf(out, "mv needs 2 args\n")
+		fmt.Fprintf(out, "cp needs 2 args\n")
 		return -1
 	}
 
 	from := filepath.Join(Pwd, args[1])
 	to := filepath.Join(Pwd, args[2])
 
-	if strings.HasPrefix(Pwd, from) {
-		fmt.Fprintf(out, "cannot move %q under %q\n", from, Pwd)
+	fromDir, name := filepath.Split(from)
+	if name == "" {
+		fmt.Fprintf(out, "cannot move root\n")
 		return -1
 	}
 
+	toNode := fileSys.Get(to)
+	_, isDir := toNode.(*fs.Dir)
+	if isDir {
+		to = filepath.Join(to, name)
+	}
+
 	if strings.HasPrefix(Pwd, to) {
-		fmt.Fprintf(out, "cannot move to %q under %q\n", from, Pwd)
+		fmt.Fprintf(out, "cannot move to %q under %q\n", to, Pwd)
 		return -1
 	}
 
 	if from == to {
-		fmt.Fprintf(out, "this move is a noop\n")
+		fmt.Fprintf(out, "this copy is a noop\n")
 		return -1
 	}
 
-	dir, name := filepath.Split(from)
-	node := fileSys.Get(dir)
-
+	node := fileSys.Get(fromDir)
 	d, okay := node.(*fs.Dir)
 	if !okay {
 		fmt.Fprintf(out, "error: directory not exists\n")
@@ -44,7 +49,7 @@ func cp(args []string, out io.Writer) int {
 
 	target := d.Get(name)
 	if target == nil {
-		fmt.Fprintf(out, "error: target not exists\n")
+		fmt.Fprintf(out, "error: copy target not exists\n")
 		return -1
 	}
 
@@ -54,17 +59,18 @@ func cp(args []string, out io.Writer) int {
 		return -1
 	}
 
-	dest := fileSys.Get(to)
-	destDir, okay := dest.(*fs.Dir)
-	if okay {
-		other := targetFile.Clone()
-		destDir.Set(name, other)
-		return 0
+	check := fileSys.Get(to)
+	if check != nil {
+		_, okay = check.(*fs.Dir)
+		if okay {
+			fmt.Fprintf(out, "error: cannot overwrite a directory\n")
+			return -1
+		}
 	}
 
 	dir, rename := filepath.Split(to)
-	dest = fileSys.Get(dir)
-	destDir, okay = dest.(*fs.Dir)
+	dest := fileSys.Get(dir)
+	destDir, okay := dest.(*fs.Dir)
 	if !okay {
 		fmt.Fprintf(out, "error: destination not exists\n")
 		return -1

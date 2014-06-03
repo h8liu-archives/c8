@@ -23,8 +23,20 @@ func mv(args []string, out io.Writer) int {
 		return -1
 	}
 
+	fromDir, name := filepath.Split(from)
+	if name == "" {
+		fmt.Fprintf(out, "cannot move root\n")
+		return -1
+	}
+
+	toNode := fileSys.Get(to)
+	_, isDir := toNode.(*fs.Dir)
+	if isDir {
+		to = filepath.Join(to, name)
+	}
+
 	if strings.HasPrefix(Pwd, to) {
-		fmt.Fprintf(out, "cannot move to %q under %q\n", from, Pwd)
+		fmt.Fprintf(out, "cannot move to %q under %q\n", to, Pwd)
 		return -1
 	}
 
@@ -33,9 +45,7 @@ func mv(args []string, out io.Writer) int {
 		return -1
 	}
 
-	dir, name := filepath.Split(from)
-	node := fileSys.Get(dir)
-
+	node := fileSys.Get(fromDir)
 	d, okay := node.(*fs.Dir)
 	if !okay {
 		fmt.Fprintf(out, "error: directory not exists\n")
@@ -48,17 +58,9 @@ func mv(args []string, out io.Writer) int {
 		return -1
 	}
 
-	dest := fileSys.Get(to)
-	destDir, okay := dest.(*fs.Dir)
-	if okay {
-		d.Set(name, nil)
-		destDir.Set(name, target)
-		return 0
-	}
-
 	dir, rename := filepath.Split(to)
-	dest = fileSys.Get(dir)
-	destDir, okay = dest.(*fs.Dir)
+	dest := fileSys.Get(dir)
+	destDir, okay := dest.(*fs.Dir)
 	if !okay {
 		fmt.Fprintf(out, "error: destination not exists\n")
 		return -1
