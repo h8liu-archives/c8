@@ -13,4 +13,5 @@ Any help is appreciated.
 - Terminal colors.
 - More common commands.
 - More powerful command implementations.
+- Commands need some cleaning and refactoring.
 - Auto-save and auto-sync for the file system.
