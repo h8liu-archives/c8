@@ -11,22 +11,22 @@ body {
 }
 
 div#navi {
-    height: 30px;
+    color: #aaa;
+    height: 24px;
     background: #171717;
-    color: #fff;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 6px;
 }
 
 div#navi ul {
     list-style: none;
     padding: 0;
     margin: 0;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 div#navi ul li {
     display: inline-block;
-    margin-top: 6px;
     padding-left: 5px;
     padding-right: 5px;
 }
