@@ -64,7 +64,7 @@ Terminal = (canvas) ->
     dpr = window.devicePixelRatio
     # dpr = 1
     context = canvas.getContext('2d')
-    context.scale(dpr, dpr)
+    # context.scale(dpr, dpr)
 
     fontSize = 14 * dpr
     charHeight = fontSize
