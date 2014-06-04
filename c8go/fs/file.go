@@ -29,3 +29,7 @@ func (f *File) Clone() *File {
 
 	return ret
 }
+
+func (f *File) Reader() io.Reader {
+	return bytes.NewBuffer(f.bytes)
+}
