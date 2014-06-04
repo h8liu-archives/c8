@@ -199,7 +199,7 @@ Console = (canvas) ->
         c = self.canvas
         resized = self.term.updateSize(c.width(), c.height())
         if resized || self.updated
-            self._redraw()
+            self._redraw(resized)
         else
             self.drawCursor()
 
@@ -231,7 +231,7 @@ Console = (canvas) ->
             return 0
         return Math.ceil((line.length + 1) / ncol)
 
-    self._redraw = ->
+    self._redraw = (resized) ->
         nrow = self.term.nrow()
         ncol = self.term.ncol()
 
