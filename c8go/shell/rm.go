@@ -17,7 +17,7 @@ func rm(args []string, out io.Writer) int {
 
 	rel := args[1]
 	path := filepath.Join(Pwd, rel)
-	
+
 	if strings.HasPrefix(Pwd, path) {
 		fmt.Fprintf(out, "cannot remove %q under %q\n", path, Pwd)
 		return -1
@@ -25,7 +25,7 @@ func rm(args []string, out io.Writer) int {
 
 	dir, name := filepath.Split(path)
 	node := fileSys.Get(dir)
-	
+
 	d, okay := node.(*fs.Dir)
 	if !okay {
 		fmt.Fprintf(out, "error: directory not exists\n")
