@@ -62,6 +62,7 @@ Terminal = (canvas) ->
     self = this
 
     dpr = window.devicePixelRatio
+    # dpr = 1
     context = canvas.getContext('2d')
     context.scale(dpr, dpr)
 
