@@ -17,6 +17,12 @@ func NewFile(perm uint32) *File {
 	return ret
 }
 
+func NewStringFile(perm uint32, s string) *File {
+	ret := NewFile(perm)
+	ret.Set([]byte(s))
+	return ret
+}
+
 func (f *File) Perm() uint32 { return f.perm }
 
 func (f *File) Clone() *File {
@@ -32,4 +38,9 @@ func (f *File) Clone() *File {
 
 func (f *File) Reader() io.Reader {
 	return bytes.NewBuffer(f.bytes)
+}
+
+func (f *File) Set(bytes []byte) {
+	f.bytes = make([]byte, len(bytes))
+	copy(f.bytes, bytes)
 }

@@ -28,7 +28,7 @@ func (fs *FileSys) buildSample() {
 	root.Set("bin", d)
 
 	d = NewDir(0)
-	d.Set("readme", NewFile(0))
+	d.Set("readme", NewStringFile(0, "# Readme file\n\nJust a test file\n"))
 
 	home := NewDir(0)
 	home.Set("h8liu", d)
