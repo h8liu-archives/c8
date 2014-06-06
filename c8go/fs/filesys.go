@@ -40,36 +40,81 @@ func (fs *FileSys) buildSample() {
 	root.Set("home", home)
 }
 
-func (fs *FileSys) Get(path string) Node {
+func (fs *FileSys) GetOrCreateDir(path string, file bool) Node {
+  return fs.GetOrCreate(path, false)
+}
+
+func (fs *FileSys) GetOrCreateFile(path string, file bool) Node {
+  return fs.GetOrCreate(path, true)
+}
+
+func (fs *FileSys) GetOrCreate(path string, file bool) Node {
+  part, pnode := fs.GetLast(path)
+  n := fs.GetPart(pnode, part)
+  if n != nil {
+    return n
+  }
+  if pnode != nil {
+    if d, isDir := pnode.(*Dir); isDir {
+      var node Node
+      if file {
+        node = NewFile(0)
+      } else {
+        node = NewDir(0)
+      }
+      d.Set(part, node)
+      return d.Get(part)
+    }
+  }
+  panic("no such file or directory") // can't resolve till last part
+}
+
+func (fs *FileSys) GetLast(path string) (string, Node) {
 	if !filepath.IsAbs(path) {
 		panic("has to be absolute path")
 	}
 
 	parts := strings.Split(path, "/")
+  if len(parts) == 0 {
+    return "", fs.root
+  }
+
 	if parts[0] != "" {
 		panic("bug")
 	}
 	parts = parts[1:]
-	if parts[len(parts)-1] == "" {
-		parts = parts[:len(parts)-1]
-	}
 
 	var node Node = fs.root
-	for _, p := range parts {
+	for _, p := range parts[:len(parts) - 1] { // stop at the last part
 		if p == "" {
 			continue
 		}
-
-		d, isDir := node.(*Dir)
-		if !isDir {
-			return nil
-		}
-
-		node = d.Get(p)
-		if node == nil {
-			return nil // not found
-		}
+    node = fs.GetPart(node, p)
+    if node == nil {
+      return "", nil
+    }
 	}
+	return parts[len(parts) - 1], node
+}
 
-	return node
+func (fs *FileSys) GetPart(node Node, part string) Node {
+  if node == nil {
+    return nil
+  }
+	d, isDir := node.(*Dir)
+	if !isDir {
+		return nil
+	}
+	return d.Get(part)
+}
+
+func (fs *FileSys) Get(path string) Node {
+  // first resolve to last part, then get the last one
+  // dividing into two steps are for sharing code
+  // with GetOrCreate
+  part, pnode := fs.GetLast(path)
+  if part == "" { // has no parent!, return root
+    return fs.root
+  }
+  return fs.GetPart(pnode, part)
 }
