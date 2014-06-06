@@ -24,34 +24,45 @@ func ls(args []string, out io.Writer) int {
     if len(items) > 1 {
 		  fmt.Fprintln(out, item + ":")
     }
+    full_item := item
     if item[0] != '/' {
-      item = Pwd + item
-    }
-    node := fileSys.Get(item)
-    dir, okay := node.(*fs.Dir)
-    if !okay {
-      fmt.Fprintf(out, "error: current working directory does not exist\n")
-      return -1
-    }
-    lst := dir.List()
-    for i, p := range lst {
-      if !long && i > 0 {
-        fmt.Fprint(out, " ")
-      }
-      fmt.Fprint(out, p)
-      if long {
-        fmt.Fprintln(out)
+      if Pwd[len(Pwd)-1] == '/' {
+        full_item = Pwd + item
+      } else {
+        full_item = Pwd + "/" + item
       }
     }
-    if len(lst) > 0 {
-      if !long {
-        fmt.Fprintln(out)
+    node := fileSys.Get(full_item)
+    if node == nil {
+      fmt.Fprintf(out, item + ": no such file or directory\n")
+    } else {
+      dir, okay := node.(*fs.Dir)
+      if okay { // item is a directory, list its content
+        lsdir(dir, long, out)
+      } else { // item is a file, print the name
+        fmt.Fprintln(out, item)
       }
-      if len(items) > 1  && it != len(items) -1 {
-        fmt.Fprintln(out)
-      }
+    }
+    if len(items) > 1  && it != len(items) -1 {
+      fmt.Fprintln(out)
     }
   }
 
 	return 0
+}
+
+func lsdir(dir *fs.Dir, long bool, out io.Writer) {
+  lst := dir.List()
+  for i, p := range lst {
+    if !long && i > 0 {
+      fmt.Fprint(out, " ")
+    }
+    fmt.Fprint(out, p)
+    if long {
+      fmt.Fprintln(out)
+    }
+  }
+  if !long {
+    fmt.Fprintln(out)
+  }
 }
