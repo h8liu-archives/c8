@@ -7,8 +7,9 @@ import (
 
 type File struct {
 	perm  uint32
-  off int // only for write
 	bytes []byte
+
+	off   int // only for write
 }
 
 func NewFile(perm uint32) *File {
@@ -41,10 +42,11 @@ func (f *File) Reader() io.Reader {
 	return bytes.NewBuffer(f.bytes)
 }
 
-func (f *File) Write(p []byte) (n int, err error) {
-  f.bytes = append(f.bytes[:f.off], p...)
-  f.off = f.off + len(p)
-  return len(p), nil
+func (f *File) Write(buf []byte) (n int, err error) {
+	n = len(buf)
+	f.bytes = append(f.bytes[:f.off], buf...)
+	f.off = f.off + n
+	return n, nil
 }
 
 func (f *File) Set(bytes []byte) {
@@ -54,5 +56,5 @@ func (f *File) Set(bytes []byte) {
 
 func (f *File) Clear() {
 	f.bytes = nil
-  f.off = 0
+	f.off = 0
 }
