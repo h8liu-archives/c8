@@ -53,5 +53,6 @@ func (f *File) Set(bytes []byte) {
 }
 
 func (f *File) Clear() {
-	f.bytes = []byte{}
+	f.bytes = nil
+  f.off = 0
 }
