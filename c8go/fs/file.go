@@ -51,3 +51,7 @@ func (f *File) Set(bytes []byte) {
 	f.bytes = make([]byte, len(bytes))
 	copy(f.bytes, bytes)
 }
+
+func (f *File) Clear() {
+	f.bytes = []byte{}
+}
