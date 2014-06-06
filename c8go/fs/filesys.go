@@ -40,11 +40,11 @@ func (fs *FileSys) buildSample() {
 	root.Set("home", home)
 }
 
-func (fs *FileSys) GetOrCreateDir(path string, file bool) Node {
+func (fs *FileSys) GetOrCreateDir(path string) Node {
   return fs.GetOrCreate(path, false)
 }
 
-func (fs *FileSys) GetOrCreateFile(path string, file bool) Node {
+func (fs *FileSys) GetOrCreateFile(path string) Node {
   return fs.GetOrCreate(path, true)
 }
 
