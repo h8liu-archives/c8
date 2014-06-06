@@ -7,6 +7,7 @@ import (
 
 type File struct {
 	perm  uint32
+  off int // only for write
 	bytes []byte
 }
 
@@ -38,6 +39,12 @@ func (f *File) Clone() *File {
 
 func (f *File) Reader() io.Reader {
 	return bytes.NewBuffer(f.bytes)
+}
+
+func (f *File) Write(p []byte) (n int, err error) {
+  f.bytes = append(f.bytes[:f.off], p...)
+  f.off = f.off + len(p)
+  return len(p), nil
 }
 
 func (f *File) Set(bytes []byte) {
